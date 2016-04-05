@@ -1,0 +1,38 @@
+#! /bin/sh
+
+PROG=$1;
+
+AlarmHandler() {
+  echo "Got SIGALARM, cmd took too long."
+  KillSubProcs
+  exit 14
+}
+
+KillSubProcs() {
+  kill ${CHPROCIDS:-$!}
+  if [ $? -eq 0 ] ; then echo "Sub-processes killed." ; fi
+}
+
+SetTimer() {
+  DEF_TOUT=${1:-10}; # 如果SetTimer有参数，则DEF_TOUT设置成这个参数，否则为10。在此例题中，DEF_TOUT为15。
+  if [ $DEF_TOUT -ne 0 ] ; then
+    sleep $DEF_TOUT && kill -s 14 $$ & # 等待15秒后，激活函数AlarmHandler。之所以要使用$$，是因为signal需要传递给当前的脚本。由于是背景执行，可以无需等待。
+    CHPROCIDS="$CHPROCIDS $!"
+    TIMERPROC=$!
+  fi
+}
+
+UnsetTimer() {
+  kill $TIMERPROC
+}
+
+# main()
+
+trap AlarmHandler 14 
+SetTimer 15 # 跳到函数部分
+$PROG & 
+CHPROCIDS="$CHPROCIDS $!"
+wait $! # 这个脚本中的核心思想。如果背景指令$PROG &的执行时间过长，在本例题中是15秒，则就会激活上面的kill函数，kill掉所有的背景指令。
+UnsetTimer
+echo "All Done."
+exit 0
