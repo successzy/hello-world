@@ -1,0 +1,4 @@
+# 比较浮点数的时候使用
+if [ $(echo "$New >= $Old"|bc) -eq 1 ];then
+  :
+fi
