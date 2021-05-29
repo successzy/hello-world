@@ -1,7 +1,0 @@
-# 比较浮点数的时候使用
-if [ $(echo "$New >= $Old"|bc) -eq 1 ];then
-  :
-fi
-
-# 将if else语句写成一个if语句
-if [ ! d "$1" ]||[ -d ${DESTDIR=`(cd $1;pwd;)`} ]
